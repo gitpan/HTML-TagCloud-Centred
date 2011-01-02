@@ -45,6 +45,18 @@ Otherwise, it is API-compatible with L<HTML::TagCloud|HTML::TagCloud>, though
 that module is not required. For further details of this modules methods,
 please see L<HTML::TagCloud>.
 
+=head2 OUTPUT
+
+Output is HTML and/or CSS. The HTML contains a C<div> of class C<tagcloud>,
+that contains one or more C<div> of class C<row>. Each row contains
+C<a> elements for each linked word. If words were supplied without links, 
+they are contained in C<span> elements.
+
+Colouring and font-sizing is contained in the C<a> and C<span> C<style>
+attributes. The base size can of course be set in your CSS, since all sizing
+is by percentage relevant to the parent container. The CSS supplied is minimal,
+just to centre the rows.
+
 =cut
 	
 package HTML::TagCloud::Centred::Base; # Things you have to do without Moose.
@@ -60,12 +72,13 @@ sub _init {}
 
 package HTML::TagCloud::Centred;
 use base 'HTML::TagCloud::Centred::Base';
-use Data::Dumper;
+use Data::Dumper; # for debugging
+use Carp;
 use constant BLANK => '_';
 
 eval { require Color::Spectrum };
 
-our $VERSION = 2;
+our $VERSION = 3;
 
 # use Log4perl if we have it, otherwise stub:
 # See Log::Log4perl::FAQ
@@ -93,6 +106,7 @@ BEGIN {
 
 sub add {
 	my ($self, $word, $url, $count) = @_;
+	confess "No word was supplied" if not defined $word or not length $word;
 	push @{ $self->{words} }, new HTML::TagCloud::Centred::Word(
 		name => $word,
 		url  => $url,
@@ -146,14 +160,14 @@ sub html_and_css {
 
 sub css {
 	my $self = shift;
-	return "<style>.cloud { text-align: center }</style>\n";
+	return "<style type='text/css'>.tagcloud { text-align: center }</style>\n";
 }
 
 sub html {
 	my $self = shift;
 	$self->{limit} = $_[0] if $_[0];
 
-	my $out = "\n<div class='cloud'";
+	my $out = "\n<div class='tagcloud'>";
 	my $blank = quotemeta BLANK;
 	my $re = qr/^$blank+$/;
 
@@ -205,7 +219,7 @@ sub tags {
 sub _prepare {
 	my $self = shift;
 	die "No words from which to create a cloud - see add(...)."
-	unless scalar @{ $self->{words} };
+	unless $self->{words} and scalar @{ $self->{words} };
 	$self->{size}		= int( sqrt(scalar @{$self->{words}})) +1;
 	$self->{inputs}		= [@{ $self->{words} }];
 	$self->{grid} 		= [];
@@ -349,6 +363,7 @@ sub _init {
 		if (require CGI::Util){ return CGI::Util::escape(shift)}
 		return shift;
 	};
+	die "No 'name'?" if not defined $self->{name};
 }
 
 sub html {
@@ -356,11 +371,11 @@ sub html {
 	my $ctag = 'span';
 	my $otag = $ctag;
 	my $name = $self->{html_esc_code}->( $self->{name} );
-	if ($self->{url}){
+	if (defined $self->{url}){
 		$ctag = 'a';
 		$otag = "a href='$self->{url}' title='$name'";
 	}
-	my $clr = $self->{clr}? 'color:'.$self->{clr} : '';
+	my $clr = defined($self->{clr})? 'color:'.$self->{clr} : '';
 	return "<$otag style='$clr; font-size:$self->{size}%'>$name</$ctag>";
 }
 
