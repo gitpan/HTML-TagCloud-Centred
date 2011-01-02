@@ -16,11 +16,11 @@ HTML::TagCloud::Centred - Biggest tags in the centre
 		# clr_max => '#FF0000',
 		# clr_min => '#550000',
 	);
-	$cloud->add_word( 'FirstWord', 'http://www.google.co.uk' );
+	$cloud->add( 'FirstWord', 'http://www.google.co.uk' );
 	foreach my $w (
 		('Biggest')x7, ('Medium')x5, ('Small')x5, ('Smallest')x10 
 	){
-		$cloud->add_word( $w );
+		$cloud->add( $w );
 	}
 	open my $OUT, '>cloud.html';
 	# print $OUT $cloud->css;
@@ -36,7 +36,7 @@ This modules produces a tag cloud with the heaviest words in the centre,
 and the lightest on the outside, to make it appear a bit like the clouds
 seen in the sky.
 
-Words are accepted through L<add_word|add_word> in a sorted order - that is,
+Words are accepted through L<add|add> in a sorted order - that is,
 add the heaviest word first, the lightest last. When the C<html> or C<css_and_html>
 methods are called, the words are added to a grid in a simple spiral: this may
 change to produce a prettier cloud, but it works well enough as it is.
@@ -65,7 +65,7 @@ use constant BLANK => '_';
 
 eval { require Color::Spectrum };
 
-our $VERSION = 1;
+our $VERSION = 2;
 
 # use Log4perl if we have it, otherwise stub:
 # See Log::Log4perl::FAQ
@@ -91,7 +91,7 @@ BEGIN {
 	}
 }
 
-sub add_word {
+sub add {
 	my ($self, $word, $url, $count) = @_;
 	push @{ $self->{words} }, new HTML::TagCloud::Centred::Word(
 		name => $word,
@@ -204,6 +204,8 @@ sub tags {
 
 sub _prepare {
 	my $self = shift;
+	die "No words from which to create a cloud - see add(...)."
+	unless scalar @{ $self->{words} };
 	$self->{size}		= int( sqrt(scalar @{$self->{words}})) +1;
 	$self->{inputs}		= [@{ $self->{words} }];
 	$self->{grid} 		= [];

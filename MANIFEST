@@ -1,4 +1,5 @@
 lib/HTML/TagCloud/Centred.pm
+CHANGES
 MANIFEST			This list of files
 MANIFEST.skip
 t/all.t

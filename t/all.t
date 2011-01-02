@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+my $VERSION = 2;
 
 # Rubbish tests
 
@@ -22,7 +23,7 @@ my $cloud = HTML::TagCloud::Centred->new(
 isa_ok( $cloud, 'HTML::TagCloud::Centred');
 
 isa_ok( 
-	$cloud->add_word( 'FirstWord', 'http://www.google.co.uk' ),
+	$cloud->add( 'FirstWord', 'http://www.google.co.uk' ),
 	'HTML::TagCloud::Centred'
 );
 		
@@ -30,12 +31,12 @@ foreach my $w (
 	('Biggest')x7, ('Medium')x5, ('Small')x6, ('Smallest')x10 
 ){
 	isa_ok(
-		$cloud->add_word( $w ),
+		$cloud->add( $w ),
 		'HTML::TagCloud::Centred'
 	);
 }
 
-$cloud->add_word( 'LastWord', 'http://www.google.co.uk' ),
+$cloud->add( 'LastWord', 'http://www.google.co.uk' ),
 
 like( $cloud->css, qr/<style/, 'some kinda output from css' );
 like( $cloud->html, qr/<a /, 'some links in html' );
