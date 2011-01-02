@@ -78,7 +78,7 @@ use constant BLANK => '_';
 
 eval { require Color::Spectrum };
 
-our $VERSION = 3;
+our $VERSION = 4;
 
 # use Log4perl if we have it, otherwise stub:
 # See Log::Log4perl::FAQ
@@ -153,6 +153,12 @@ are not set.
 
 =cut
 
+#=item size_x, size_y
+#
+#By default, the cloud is laid out on a square grid. If you set both
+#C<size_x> and C<size_y>, you can override this, but no error checking is performed.
+#
+
 sub html_and_css {
 	my $self = shift;
 	return $self->css . $self->html;	
@@ -169,25 +175,26 @@ sub html {
 
 	my $out = "\n<div class='tagcloud'>";
 	my $blank = quotemeta BLANK;
-	my $re = qr/^$blank+$/;
+	my $re = qr/^\s*$blank+\s*$/;
 
 	$self->_build;
 
-	for my $y (1..$self->{size} ){
+	for my $y (1..$self->{size_y} ){
 		my $row = '';
-		for my $x (1..$self->{size} ){
+		for my $x (1..$self->{size_x} ){
 			next if not defined $self->{grid}->[$x-1]->[$y-1]
 				or $self->{grid}->[$x-1]->[$y-1] eq BLANK;
 			$row .= "\t" . $self->{grid}->[$x-1]->[$y-1]->html ."\n";
 		}
 		$out .= "\n<div class='row'>\n" . $row . "</div>\n"
-			unless $row and $row =~ $re;
+			unless $row eq '' or $row =~ /$re/s;
 	}
 	
 	$out .= "</div>\n";
 	return $out;
 }
 
+# Move into sub html
 sub tags {
 	my $self = shift;
 	$self->{limit} = $_[0] if $_[0];
@@ -198,8 +205,8 @@ sub tags {
 	my @rv;
 	my $blank = quotemeta BLANK;
 	my $re = qr/^$blank+$/;
-	for my $y (1..$self->{size} ){
-		for my $x (1..$self->{size} ){
+	for my $y (1..$self->{size_y} ){
+		for my $x (1..$self->{size_x} ){
 			next if not defined $self->{grid}->[$x-1]->[$y-1]
 				or $self->{grid}->[$x-1]->[$y-1] eq BLANK;
 			my $w = $self->{grid}->[$x-1]->[$y-1];
@@ -220,7 +227,12 @@ sub _prepare {
 	my $self = shift;
 	die "No words from which to create a cloud - see add(...)."
 	unless $self->{words} and scalar @{ $self->{words} };
-	$self->{size}		= int( sqrt(scalar @{$self->{words}})) +1;
+	
+	# Custom size does not work yet
+	#if (not $self->{size_x} and not $self->{size_y}){
+		$self->{size_y} = $self->{size_x} = int( sqrt(scalar @{$self->{words}})) +1;
+	#}
+	
 	$self->{inputs}		= [@{ $self->{words} }];
 	$self->{grid} 		= [];
 	$self->{tags}		= []; # HTML::TagCloud API
@@ -234,9 +246,9 @@ sub _prepare {
 
 	$self->{scale_f} = $self->{scale_code}->($self);
 	
-	for my $y (1..$self->{size}){
+	for my $y (1..$self->{size_y}){
 		$self->{grid}->[$y-1] = [];
-		for my $x (1..$self->{size}){
+		for my $x (1..$self->{size_x}){
 			$self->{grid}->[$y-1]->[$x-1] = BLANK;
 		}
 	}
@@ -264,8 +276,8 @@ sub _prepare {
 sub _build {
 	my $self = shift;
 	$self->_prepare;
-	my $x = int ($self->{size} / 2);	# Centre starting position
-	my $y = $x;								# Centre starting position
+	my $x = int ($self->{size_x} / 2);	# Centre starting position
+	my $y = int ($self->{size_y} / 2);	# Centre starting position
 	my @d = (								# Direction of turns
 		[1, 0],
 		[0, 1],
@@ -289,7 +301,7 @@ sub _build {
 		my $add_x = ($length * $d[ $cside ]->[0] );
 		my $add_y = ($length * $d[ $cside ]->[1] );
 
-		$self->_add_word( 
+		$self->_create_side( 
 			from_x	=> $x,
 			from_y	=> $y,
 			to_x	=> $x + $add_x,
@@ -314,7 +326,7 @@ sub _build {
 	}
 }
 
-sub _add_word {
+sub _create_side {
 	my ($self, $args) = (shift, ref($_[0])? shift : {@_});
 	my ($from_x, $from_y, $to_x, $to_y);
 	
@@ -334,14 +346,15 @@ sub _add_word {
 		$to_y	= $args->{to_y};
 	}
 
-	DEBUG "From X $from_x -> $to_x; \nFrom Y $from_y -> $to_y";
-	
+	DEBUG "From X $from_x -> $to_x;From Y $from_y -> $to_y";
 	WORDS:
 	for my $x ($from_x .. $to_x){
 		for my $y ($from_y .. $to_y){
+			# TRACE $x-1, ', ', $y-1;
+			next if not $self->{grid}->[ $x-1 ]->[ $y-1 ];
 			next if $self->{grid}->[ $x-1 ]->[ $y-1 ] ne BLANK;
+			last WORDS if not @{ $self->{inputs} };
 			my $word = shift @{ $self->{inputs} };	
-			last WORDS if not $word;
 			DEBUG "     set $x $y = $word->{name}";
 			$word->{clr} = $args->{clr} if $args->{clr};
 			$word->{x} = $x-1;

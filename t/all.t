@@ -8,9 +8,14 @@ use lib qw( lib ../lib );
 
 BEGIN {
 	use Test::More;
-	plan tests => 102;
+	plan tests => 103;
+}
+
+BEGIN {
 	use_ok('HTML::TagCloud::Centred');
 }
+
+eval { use Log::Log4perl ':easy'; Log::Log4perl->easy_init($TRACE) };
 
 my $cloud = HTML::TagCloud::Centred->new(
 	# size_min_pc => 50,
@@ -21,6 +26,7 @@ my $cloud = HTML::TagCloud::Centred->new(
 );
 
 isa_ok( $cloud, 'HTML::TagCloud::Centred');
+is( $HTML::TagCloud::Centred::VERSION, 4, 'Version');
 
 isa_ok( 
 	$cloud->add( 'FirstWord', 'http://www.google.co.uk' ),
@@ -64,6 +70,5 @@ TODO : {
 	is( $tags[0]->{size}, $cloud->{size_min_pc}, 'outside tag has min size');
 }
 
-open my $OUT, '>temp.html';
-print $OUT $cloud->html_and_css;
+# open my $OUT, '>temp.html'; print $OUT $cloud->html_and_css;
 
