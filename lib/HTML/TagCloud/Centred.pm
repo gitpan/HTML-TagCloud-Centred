@@ -78,12 +78,12 @@ use constant BLANK => '_';
 
 eval { require Color::Spectrum };
 
-our $VERSION = 4;
+our $VERSION = 5;
 
 # use Log4perl if we have it, otherwise stub:
 # See Log::Log4perl::FAQ
 BEGIN {
-	eval { require Log::Log4perl; };
+	eval { require Log::Log4perl };
 
 	# No Log4perl so hide calls to it: see Log4perl FAQ
 	if($@) {

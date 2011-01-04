@@ -11,7 +11,7 @@ WriteMakefile(
   ABSTRACT_FROM => 'lib/HTML/TagCloud/Centred.pm',
   PL_FILES      => {},
   PREREQ_PM     => {
-    'Test::Most' => 0.23,
+    'Test::More' => 0,
   },
   dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
   clean => { FILES    => 'HTML-TagCloud-Centred-*' },

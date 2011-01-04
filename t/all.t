@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-my $VERSION = 2;
+my $VERSION = 3;
 
 # Rubbish tests
 
@@ -15,8 +15,6 @@ BEGIN {
 	use_ok('HTML::TagCloud::Centred');
 }
 
-eval { use Log::Log4perl ':easy'; Log::Log4perl->easy_init($TRACE) };
-
 my $cloud = HTML::TagCloud::Centred->new(
 	# size_min_pc => 50,
 	# size_max_pc => 200,
@@ -26,7 +24,7 @@ my $cloud = HTML::TagCloud::Centred->new(
 );
 
 isa_ok( $cloud, 'HTML::TagCloud::Centred');
-is( $HTML::TagCloud::Centred::VERSION, 4, 'Version');
+is( $HTML::TagCloud::Centred::VERSION, 5, 'Version');
 
 isa_ok( 
 	$cloud->add( 'FirstWord', 'http://www.google.co.uk' ),
