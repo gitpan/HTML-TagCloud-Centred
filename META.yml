@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               HTML-TagCloud-Centred
-version:            5
+version:            6
 abstract:           Biggest tags in the centre
 author:
     - Lee Goddard <lgoddard@cpan.org>
