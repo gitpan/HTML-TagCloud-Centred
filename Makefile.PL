@@ -7,7 +7,7 @@ WriteMakefile(
   license( 'perl' ),
   NAME          => 'HTML::TagCloud::Centred',
   AUTHOR        => 'Lee Goddard <lgoddard@cpan.org>',
-  VERSION	=> 6,
+  VERSION	=> 7,
   # VERSION_FROM  => 'lib/HTML/TagCloud/Centred.pm',
   ABSTRACT_FROM => 'lib/HTML/TagCloud/Centred.pm',
   PL_FILES      => {},
