@@ -3,11 +3,11 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-  ( MM->can( 'signature_target' ) ? ( SIGN => 1 ) : () ),
+#  ( MM->can( 'signature_target' ) ? ( SIGN => 1 ) : () ),
   license( 'perl' ),
   NAME          => 'HTML::TagCloud::Centred',
   AUTHOR        => 'Lee Goddard <lgoddard@cpan.org>',
-  VERSION	=> 7,
+  VERSION	=> 8,
   # VERSION_FROM  => 'lib/HTML/TagCloud/Centred.pm',
   ABSTRACT_FROM => 'lib/HTML/TagCloud/Centred.pm',
   PL_FILES      => {},
