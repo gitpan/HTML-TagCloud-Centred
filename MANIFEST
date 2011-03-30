@@ -7,4 +7,3 @@ t/manifest.t
 Makefile.PL
 examples/sample.html
 META.yml                                 Module meta-data (added by MakeMaker)
-SIGNATURE                                Public-key signature (added by MakeMaker)
